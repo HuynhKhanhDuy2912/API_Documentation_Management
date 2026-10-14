@@ -2,7 +2,11 @@ const apiDocService = require('../services/apiDocService');
 
 const getAllApiDocs = async (req, res, next) => {
   try {
-    const apiDocs = await apiDocService.getAllByProject(req.params.projectId);
+    const apiDocs = await apiDocService.getAllByProject(
+      req.params.projectId,
+      req.user.id,
+      req.query
+    );
 
     res.status(200).json({
       success: true,
@@ -16,7 +20,7 @@ const getAllApiDocs = async (req, res, next) => {
 
 const getApiDocById = async (req, res, next) => {
   try {
-    const apiDoc = await apiDocService.getById(req.params.projectId, req.params.id);
+    const apiDoc = await apiDocService.getById(req.params.projectId, req.params.id, req.user.id);
 
     res.status(200).json({
       success: true,
@@ -29,7 +33,7 @@ const getApiDocById = async (req, res, next) => {
 
 const createApiDoc = async (req, res, next) => {
   try {
-    const apiDoc = await apiDocService.create(req.params.projectId, req.body);
+    const apiDoc = await apiDocService.create(req.params.projectId, req.user.id, req.body);
 
     res.status(201).json({
       success: true,
@@ -45,6 +49,7 @@ const updateApiDoc = async (req, res, next) => {
     const apiDoc = await apiDocService.update(
       req.params.projectId,
       req.params.id,
+      req.user.id,
       req.body
     );
 
@@ -59,7 +64,7 @@ const updateApiDoc = async (req, res, next) => {
 
 const deleteApiDoc = async (req, res, next) => {
   try {
-    const result = await apiDocService.remove(req.params.projectId, req.params.id);
+    const result = await apiDocService.remove(req.params.projectId, req.params.id, req.user.id);
 
     res.status(200).json({
       success: true,

@@ -1,9 +1,8 @@
 const ApiDocument = require('../models/ApiDocument');
 const Project = require('../models/Project');
 
-// Kiểm tra project có tồn tại không
-const checkProjectExists = async (projectId) => {
-  const project = await Project.findById(projectId);
+const checkProjectOwnership = async (projectId, userId) => {
+  const project = await Project.findOne({ _id: projectId, userId });
 
   if (!project) {
     const error = new Error('Không tìm thấy project');
@@ -14,17 +13,32 @@ const checkProjectExists = async (projectId) => {
   return project;
 };
 
-// Lấy tất cả API documents của 1 project
-const getAllByProject = async (projectId) => {
-  await checkProjectExists(projectId);
+const getAllByProject = async (projectId, userId, query = {}) => {
+  await checkProjectOwnership(projectId, userId);
 
-  const apiDocs = await ApiDocument.find({ projectId }).sort({ createdAt: -1 });
+  const filter = { projectId };
+
+  // Filter by method
+  if (query.method) {
+    filter.method = query.method.toUpperCase();
+  }
+
+  // Search by name, url, or description
+  if (query.search) {
+    const searchRegex = new RegExp(query.search, 'i');
+    filter.$or = [
+      { name: searchRegex },
+      { url: searchRegex },
+      { description: searchRegex },
+    ];
+  }
+
+  const apiDocs = await ApiDocument.find(filter).sort({ createdAt: -1 });
   return apiDocs;
 };
 
-// Lấy chi tiết 1 API document
-const getById = async (projectId, id) => {
-  await checkProjectExists(projectId);
+const getById = async (projectId, id, userId) => {
+  await checkProjectOwnership(projectId, userId);
 
   const apiDoc = await ApiDocument.findOne({ _id: id, projectId });
 
@@ -37,9 +51,8 @@ const getById = async (projectId, id) => {
   return apiDoc;
 };
 
-// Tạo API document mới
-const create = async (projectId, data) => {
-  await checkProjectExists(projectId);
+const create = async (projectId, userId, data) => {
+  await checkProjectOwnership(projectId, userId);
 
   const apiDoc = await ApiDocument.create({
     projectId,
@@ -56,9 +69,8 @@ const create = async (projectId, data) => {
   return apiDoc;
 };
 
-// Cập nhật API document
-const update = async (projectId, id, data) => {
-  await checkProjectExists(projectId);
+const update = async (projectId, id, userId, data) => {
+  await checkProjectOwnership(projectId, userId);
 
   const apiDoc = await ApiDocument.findOne({ _id: id, projectId });
 
@@ -81,9 +93,8 @@ const update = async (projectId, id, data) => {
   return updatedApiDoc;
 };
 
-// Xóa API document
-const remove = async (projectId, id) => {
-  await checkProjectExists(projectId);
+const remove = async (projectId, id, userId) => {
+  await checkProjectOwnership(projectId, userId);
 
   const apiDoc = await ApiDocument.findOne({ _id: id, projectId });
 

@@ -1,5 +1,5 @@
 {
-  "name": "api-documentation-manager-backend",
+  "name": "api-documentation-management-backend",
   "version": "1.0.0",
   "description": "Backend for web application API documentation management",
   "main": "server.js",
@@ -11,9 +11,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^18.0.7",
     "express": "^5.3.0",
+    "express-validator": "^7.3.2",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.11.2"
   },
   "devDependencies": {

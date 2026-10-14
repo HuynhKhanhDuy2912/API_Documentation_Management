@@ -2,7 +2,7 @@ const projectService = require('../services/projectService');
 
 const getAllProjects = async (req, res, next) => {
   try {
-    const projects = await projectService.getAllProjects();
+    const projects = await projectService.getAllProjects(req.user.id, req.query);
 
     res.status(200).json({
       success: true,
@@ -16,7 +16,7 @@ const getAllProjects = async (req, res, next) => {
 
 const getProjectById = async (req, res, next) => {
   try {
-    const project = await projectService.getProjectById(req.params.id);
+    const project = await projectService.getProjectById(req.params.id, req.user.id);
 
     res.status(200).json({
       success: true,
@@ -29,7 +29,7 @@ const getProjectById = async (req, res, next) => {
 
 const createProject = async (req, res, next) => {
   try {
-    const project = await projectService.createProject(req.body);
+    const project = await projectService.createProject(req.user.id, req.body);
 
     res.status(201).json({
       success: true,
@@ -42,7 +42,7 @@ const createProject = async (req, res, next) => {
 
 const updateProject = async (req, res, next) => {
   try {
-    const project = await projectService.updateProject(req.params.id, req.body);
+    const project = await projectService.updateProject(req.params.id, req.user.id, req.body);
 
     res.status(200).json({
       success: true,
@@ -55,7 +55,7 @@ const updateProject = async (req, res, next) => {
 
 const deleteProject = async (req, res, next) => {
   try {
-    const result = await projectService.deleteProject(req.params.id);
+    const result = await projectService.deleteProject(req.params.id, req.user.id);
 
     res.status(200).json({
       success: true,
