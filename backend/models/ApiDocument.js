@@ -20,6 +20,18 @@ const requestFieldSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const requestParameterSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    in: { type: String, enum: ['path', 'query'] },
+    type: { type: String, trim: true, default: 'String' },
+    description: { type: String, trim: true, default: '' },
+    required: { type: Boolean, default: false },
+    example: { type: String, trim: true, default: '' },
+  },
+  { _id: false }
+);
+
 const responseFieldSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
@@ -37,22 +49,16 @@ const apiDocumentSchema = new mongoose.Schema(
       ref: 'Project',
       required: [true, 'API phải thuộc về một Project'],
     },
-
-    // Tên API
     name: {
       type: String,
       required: [true, 'Tên API là bắt buộc'],
       trim: true,
     },
-
-    // URL endpoint
     url: {
       type: String,
       required: [true, 'URL là bắt buộc'],
       trim: true,
     },
-
-    // Phương thức HTTP
     method: {
       type: String,
       required: [true, 'Method là bắt buộc'],
@@ -62,33 +68,23 @@ const apiDocumentSchema = new mongoose.Schema(
       },
       uppercase: true,
     },
-
-    // Mô tả chức năng của API
     description: {
       type: String,
       trim: true,
       default: '',
     },
-
-    // Danh sách headers
     headers: {
       type: [headerSchema],
       default: [],
     },
-
-    // Danh sách request parameters (query params, path params)
     requestParams: {
-      type: [requestFieldSchema],
+      type: [requestParameterSchema],
       default: [],
     },
-
-    // Danh sách request body fields
     requestBody: {
       type: [requestFieldSchema],
       default: [],
     },
-
-    // Danh sách response fields
     response: {
       type: [responseFieldSchema],
       default: [],

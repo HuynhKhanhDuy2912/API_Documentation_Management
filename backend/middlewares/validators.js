@@ -1,5 +1,54 @@
 const { body, validationResult } = require('express-validator');
 
+const extractPathParameterNames = (url = '') => {
+  const names = new Set();
+  const pattern = /(?:\/:([A-Za-z_][A-Za-z0-9_]*)|\{([A-Za-z_][A-Za-z0-9_]*)\})/g;
+  const routePath = String(url).split(/[?#]/, 1)[0];
+
+  for (const match of routePath.matchAll(pattern)) {
+    names.add(match[1] || match[2]);
+  }
+
+  return names;
+};
+
+const validateRequestParameterLocations = (parameters, { req }) => {
+  const requestParams = Array.isArray(parameters) ? parameters : [];
+  const pathNames = extractPathParameterNames(req.body?.url);
+  const declaredPathNames = new Set();
+  const seen = new Set();
+
+  for (const parameter of requestParams) {
+    if (!parameter || !['path', 'query'].includes(parameter.in) || !parameter.name) continue;
+
+    const name = String(parameter.name).trim();
+    const key = `${parameter.in}:${name}`;
+    if (seen.has(key)) {
+      throw new Error(`Tham số ${name} bị khai báo trùng trong ${parameter.in}`);
+    }
+    seen.add(key);
+
+    if (parameter.in === 'path') {
+      declaredPathNames.add(name);
+      if (parameter.required !== true) {
+        throw new Error(`Path parameter ${name} phải được đánh dấu bắt buộc`);
+      }
+    }
+  }
+
+  const missingPathNames = [...pathNames].filter((name) => !declaredPathNames.has(name));
+  if (missingPathNames.length > 0) {
+    throw new Error(`Thiếu khai báo path parameter: ${missingPathNames.join(', ')}`);
+  }
+
+  const unusedPathNames = [...declaredPathNames].filter((name) => !pathNames.has(name));
+  if (unusedPathNames.length > 0) {
+    throw new Error(`Path parameter không có trong URL: ${unusedPathNames.join(', ')}`);
+  }
+
+  return true;
+};
+
 const handleValidation = (req, res, next) => {
   const errors = validationResult(req);
 
@@ -50,11 +99,20 @@ const validateApiDoc = [
     .optional()
     .notEmpty().withMessage('Header key không được để trống'),
   body('requestParams')
-    .optional()
-    .isArray().withMessage('Request Params phải là mảng'),
+    .custom((value) => value === undefined || Array.isArray(value))
+    .withMessage('Request Params phải là mảng')
+    .bail()
+    .custom(validateRequestParameterLocations),
   body('requestParams.*.name')
     .optional()
+    .trim()
     .notEmpty().withMessage('Tên trường request param không được để trống'),
+  body('requestParams.*.in')
+    .trim()
+    .notEmpty().withMessage('Vị trí parameter phải là path hoặc query')
+    .isIn(['path', 'query']).withMessage('Vị trí parameter phải là path hoặc query'),
+  body('requestParams.*.required')
+    .isBoolean().withMessage('Trạng thái bắt buộc của parameter phải là boolean'),
   body('requestBody')
     .optional()
     .isArray().withMessage('Request Body phải là mảng'),

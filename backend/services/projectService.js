@@ -4,7 +4,6 @@ const ApiDocument = require('../models/ApiDocument');
 const getAllProjects = async (userId, query = {}) => {
   const filter = { userId };
 
-  // Search by name or description
   if (query.search) {
     const searchRegex = new RegExp(query.search, 'i');
     filter.$or = [

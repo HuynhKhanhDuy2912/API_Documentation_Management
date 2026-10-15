@@ -18,12 +18,10 @@ const getAllByProject = async (projectId, userId, query = {}) => {
 
   const filter = { projectId };
 
-  // Filter by method
   if (query.method) {
     filter.method = query.method.toUpperCase();
   }
 
-  // Search by name, url, or description
   if (query.search) {
     const searchRegex = new RegExp(query.search, 'i');
     filter.$or = [
