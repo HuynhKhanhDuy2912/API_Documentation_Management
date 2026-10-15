@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Search, Plus, X, Folder } from 'lucide-react';
 import { getProjectById, getApiDocs, createApiDoc, updateApiDoc, deleteApiDoc } from '../services/api';
 import MethodBadge from '../components/MethodBadge';
 import Modal from '../components/Modal';
@@ -155,9 +155,7 @@ export default function ProjectDetail() {
           onClick={openCreateForm}
           className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-hover transition-colors cursor-pointer"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
+          <Plus className="w-4 h-4" aria-hidden="true" />
           Thêm API
         </button>
       </div>
@@ -165,9 +163,8 @@ export default function ProjectDetail() {
       {/* Search & Filter Bar */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <Search className="w-4 h-4" aria-hidden="true" />          </span>
           <input
             type="text"
             value={searchTerm}
@@ -180,9 +177,7 @@ export default function ProjectDetail() {
               onClick={() => setSearchTerm('')}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-muted hover:text-dark-text transition-colors cursor-pointer"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-4 h-4" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -219,9 +214,7 @@ export default function ProjectDetail() {
       {sortedDocs.length === 0 ? (
         <div className="text-center py-20">
           <div className="w-16 h-16 rounded-full bg-dark-border flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-dark-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+            <Folder className="w-8 h-8" aria-hidden="true" />
           </div>
           <h3 className="text-lg font-medium text-dark-text mb-1">
             {debouncedSearch || filterMethod ? 'Không tìm thấy API' : 'Chưa có API nào'}

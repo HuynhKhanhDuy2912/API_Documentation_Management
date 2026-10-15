@@ -80,15 +80,15 @@ export default function App() {
           toastOptions={{
             duration: 3000,
             style: {
-              background: '#1e293b',
-              color: '#e2e8f0',
-              border: '1px solid #334155',
+              background: '#131e2e',
+              color: '#e6edf6',
+              border: '1px solid #29364a',
             },
             success: {
-              iconTheme: { primary: '#22c55e', secondary: '#1e293b' },
+              iconTheme: { primary: '#34d399', secondary: '#131e2e' },
             },
             error: {
-              iconTheme: { primary: '#ef4444', secondary: '#1e293b' },
+              iconTheme: { primary: '#fb7185', secondary: '#131e2e' },
             },
           }}
         />

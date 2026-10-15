@@ -12,44 +12,44 @@ const DATA_TYPES = ['String', 'Number', 'Boolean', 'Object', 'Array', 'Date'];
 
 const METHOD_STYLES = {
   GET: {
-    badge: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-    activeBtn: 'bg-emerald-500 text-white shadow-emerald-500/20 shadow-lg',
-    indicator: 'text-emerald-400',
-    border: 'border-emerald-500/40',
+    badge: 'bg-get/15 text-get border-get/30',
+    activeBtn: 'bg-get text-dark shadow-get/20 shadow-lg',
+    indicator: 'text-get',
+    border: 'border-get/40',
   },
   POST: {
-    badge: 'bg-orange-500/15 text-orange-400 border-orange-500/30',
-    activeBtn: 'bg-orange-500 text-white shadow-orange-500/20 shadow-lg',
-    indicator: 'text-orange-400',
-    border: 'border-orange-500/40',
+    badge: 'bg-post/15 text-post border-post/30',
+    activeBtn: 'bg-post text-dark shadow-post/20 shadow-lg',
+    indicator: 'text-post',
+    border: 'border-post/40',
   },
   PUT: {
-    badge: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
-    activeBtn: 'bg-blue-500 text-white shadow-blue-500/20 shadow-lg',
-    indicator: 'text-blue-400',
-    border: 'border-blue-500/40',
+    badge: 'bg-put/15 text-put border-put/30',
+    activeBtn: 'bg-put text-dark shadow-put/20 shadow-lg',
+    indicator: 'text-put',
+    border: 'border-put/40',
   },
   PATCH: {
-    badge: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
-    activeBtn: 'bg-purple-500 text-white shadow-purple-500/20 shadow-lg',
-    indicator: 'text-purple-400',
-    border: 'border-purple-500/40',
+    badge: 'bg-patch/15 text-patch border-patch/30',
+    activeBtn: 'bg-patch text-dark shadow-patch/20 shadow-lg',
+    indicator: 'text-patch',
+    border: 'border-patch/40',
   },
   DELETE: {
-    badge: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
-    activeBtn: 'bg-rose-500 text-white shadow-rose-500/20 shadow-lg',
-    indicator: 'text-rose-400',
-    border: 'border-rose-500/40',
+    badge: 'bg-delete/15 text-delete border-delete/30',
+    activeBtn: 'bg-delete text-dark shadow-delete/20 shadow-lg',
+    indicator: 'text-delete',
+    border: 'border-delete/40',
   },
 };
 
 const TYPE_COLORS = {
-  String: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-  Number: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
-  Boolean: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-  Object: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
-  Array: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
-  Date: 'text-pink-400 bg-pink-500/10 border-pink-500/20',
+  String: 'text-get bg-get/10 border-get/20',
+  Number: 'text-post bg-post/10 border-post/20',
+  Boolean: 'text-put bg-put/10 border-put/20',
+  Object: 'text-patch bg-patch/10 border-patch/20',
+  Array: 'text-primary bg-primary/10 border-primary/20',
+  Date: 'text-primary bg-primary/10 border-primary/20',
 };
 
 const emptyHeader = { key: '', value: '', description: '' };
@@ -1080,7 +1080,7 @@ function DocPreview({ formData, sampleRequestUrl }) {
             Request Body ({formData.requestBody.length} trường)
           </h4>
           {sampleBodyJson && (
-            <div className="p-3 bg-dark rounded-xl border border-dark-border font-mono text-xs text-emerald-400 overflow-x-auto custom-scrollbar">
+            <div className="p-3 bg-dark rounded-xl border border-dark-border font-mono text-xs text-get overflow-x-auto custom-scrollbar">
               <pre>{sampleBodyJson}</pre>
             </div>
           )}
@@ -1095,7 +1095,7 @@ function DocPreview({ formData, sampleRequestUrl }) {
             Response Schema ({formData.response.length} trường)
           </h4>
           {sampleResponseJson && (
-            <div className="p-3 bg-dark rounded-xl border border-dark-border font-mono text-xs text-blue-400 overflow-x-auto custom-scrollbar">
+            <div className="p-3 bg-dark rounded-xl border border-dark-border font-mono text-xs text-post overflow-x-auto custom-scrollbar">
               <pre>{sampleResponseJson}</pre>
             </div>
           )}
