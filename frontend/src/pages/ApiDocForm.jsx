@@ -1,4 +1,11 @@
 import { useState, useEffect } from 'react';
+import {
+  buildSampleRequestUrl,
+  getPathParameterNames,
+  joinBaseUrl,
+  normalizeEndpointPath,
+  normalizeRequestParams,
+} from '../utils/requestParameters';
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 const DATA_TYPES = ['String', 'Number', 'Boolean', 'Object', 'Array', 'Date'];
@@ -58,21 +65,32 @@ const COMMON_HEADERS = [
 export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = '' }) {
   const [activeTab, setActiveTab] = useState('general'); // 'general' | 'request' | 'response' | 'preview'
   const [requestSubTab, setRequestSubTab] = useState('params'); // 'params' | 'headers' | 'body'
+  const [parameterLocationTab, setParameterLocationTab] = useState('query');
 
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
-    url: initialData?.url || '',
+    url: normalizeEndpointPath(initialData?.url || ''),
     method: initialData?.method || 'GET',
     description: initialData?.description || '',
     headers: initialData?.headers?.length ? initialData.headers : [],
-    requestParams: initialData?.requestParams?.length ? initialData.requestParams : [],
+    requestParams: normalizeRequestParams(
+      initialData?.requestParams || [],
+      initialData?.url || ''
+    ),
     requestBody: initialData?.requestBody?.length ? initialData.requestBody : [],
     response: initialData?.response?.length ? initialData.response : [],
   });
 
   const [copiedUrl, setCopiedUrl] = useState(false);
 
-  // Keyboard shortcut Ctrl+S / Cmd+S to submit
+  const requestParamEntries = formData.requestParams.map((parameter, index) => ({
+    parameter,
+    index,
+  }));
+  const pathParamEntries = requestParamEntries.filter(({ parameter }) => parameter.in === 'path');
+  const queryParamEntries = requestParamEntries.filter(({ parameter }) => parameter.in === 'query');
+  const visibleParamEntries = parameterLocationTab === 'path' ? pathParamEntries : queryParamEntries;
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
@@ -111,6 +129,21 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
     }));
   };
 
+  const addRequestParameter = (location) => {
+    const nextPathName = location === 'path'
+      ? [...getPathParameterNames(formData.url)].find((name) =>
+        !formData.requestParams.some((parameter) => parameter.in === 'path' && parameter.name === name)
+      ) || ''
+      : '';
+
+    addItem('requestParams', {
+      ...emptyField,
+      name: nextPathName,
+      in: location,
+      required: location === 'path',
+    });
+  };
+
   const addHeaderPreset = (preset) => {
     // Check if key already exists
     const exists = formData.headers.some(
@@ -127,14 +160,19 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
 
+    const normalizedUrl = normalizeEndpointPath(formData.url.trim());
+
     // Clean up empty rows so backend validation does not reject
     const cleanedData = {
       ...formData,
       name: formData.name.trim(),
-      url: formData.url.trim(),
+      url: normalizedUrl,
       description: formData.description.trim(),
       headers: formData.headers.filter((h) => h.key && h.key.trim() !== ''),
-      requestParams: formData.requestParams.filter((p) => p.name && p.name.trim() !== ''),
+      requestParams: normalizeRequestParams(
+        formData.requestParams.filter((p) => p.name && p.name.trim() !== ''),
+        normalizedUrl
+      ),
       requestBody: formData.requestBody.filter((b) => b.name && b.name.trim() !== ''),
       response: formData.response.filter((r) => r.name && r.name.trim() !== ''),
     };
@@ -142,9 +180,12 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
     onSubmit(cleanedData);
   };
 
-  const fullDisplayUrl = baseUrl
-    ? `${baseUrl}${formData.url ? (formData.url.startsWith('/') ? formData.url : `/${formData.url}`) : ''}`
-    : formData.url;
+  const fullDisplayUrl = joinBaseUrl(baseUrl, formData.url);
+  const sampleRequestUrl = buildSampleRequestUrl(
+    baseUrl,
+    formData.url,
+    formData.requestParams
+  );
 
   const copyFullUrl = () => {
     if (!fullDisplayUrl) return;
@@ -210,7 +251,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
                 type="text"
                 value={formData.url}
                 onChange={(e) => handleChange('url', e.target.value)}
-                placeholder="/api/v1/auth/register"
+                placeholder="/api/v1/users/{userId}"
                 required
                 className="w-full px-4 py-2.5 bg-dark border border-dark-border rounded-xl text-dark-text font-mono text-sm placeholder-dark-muted focus:outline-none focus:border-primary transition-colors"
               />
@@ -385,7 +426,9 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
                 </div>
                 <div className="p-3 bg-dark/60 rounded-lg border border-dark-border/40">
                   <span className="text-dark-muted block mb-1">Parameters</span>
-                  <span className="font-semibold text-dark-text">{formData.requestParams.length} trường</span>
+                  <span className="font-semibold text-dark-text">
+                    {pathParamEntries.length} path · {queryParamEntries.length} query
+                  </span>
                 </div>
                 <div className="p-3 bg-dark/60 rounded-lg border border-dark-border/40">
                   <span className="text-dark-muted block mb-1">Headers</span>
@@ -465,15 +508,50 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
 
             {/* Sub-tab 1: Parameters */}
             {requestSubTab === 'params' && (
-              <FieldTableEditor
-                title="Request Parameters"
-                subtitle="Các tham số truyền qua URL dạng Query String (?key=value) hoặc Path Variable (/users/:id)"
-                items={formData.requestParams}
-                hasRequired
-                onAdd={() => addItem('requestParams', emptyField)}
-                onUpdate={(idx, k, v) => updateItem('requestParams', idx, k, v)}
-                onRemove={(idx) => removeItem('requestParams', idx)}
-              />
+              <div className="space-y-4">
+                <div className="flex items-center gap-1.5 p-1 bg-dark/60 border border-dark-border/80 rounded-xl w-fit">
+                  {[
+                    { value: 'path', label: 'Path', count: pathParamEntries.length },
+                    { value: 'query', label: 'Query', count: queryParamEntries.length },
+                  ].map((tab) => (
+                    <button
+                      key={tab.value}
+                      type="button"
+                      onClick={() => setParameterLocationTab(tab.value)}
+                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${parameterLocationTab === tab.value
+                        ? 'bg-primary text-white shadow'
+                        : 'text-dark-muted hover:text-dark-text'
+                        }`}
+                    >
+                      <span>{tab.label} Parameters</span>
+                      <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${parameterLocationTab === tab.value
+                        ? 'bg-white/20 text-white'
+                        : 'bg-dark-border text-dark-muted'
+                        }`}>
+                        {tab.count}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                <FieldTableEditor
+                  title={parameterLocationTab === 'path' ? 'Path Parameters' : 'Query Parameters'}
+                  subtitle={parameterLocationTab === 'path'
+                    ? 'Tham số nằm trong endpoint, ví dụ /users/{userId}. Path parameter luôn bắt buộc.'
+                    : 'Tham số truy vấn được gửi sau dấu ?, ví dụ ?status=active. Có thể bắt buộc hoặc tùy chọn.'}
+                  items={visibleParamEntries.map(({ parameter }) => parameter)}
+                  hasRequired
+                  requiredLocked={parameterLocationTab === 'path'}
+                  onAdd={() => addRequestParameter(parameterLocationTab)}
+                  onUpdate={(idx, key, value) => updateItem(
+                    'requestParams',
+                    visibleParamEntries[idx].index,
+                    key,
+                    value
+                  )}
+                  onRemove={(idx) => removeItem('requestParams', visibleParamEntries[idx].index)}
+                />
+              </div>
             )}
 
             {/* Sub-tab 2: Headers */}
@@ -521,8 +599,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
         {activeTab === 'preview' && (
           <DocPreview
             formData={formData}
-            baseUrl={baseUrl}
-            fullDisplayUrl={fullDisplayUrl}
+            sampleRequestUrl={sampleRequestUrl}
           />
         )}
       </div>
@@ -678,7 +755,16 @@ function HeadersTableEditor({ items, onAdd, onAddPreset, onUpdate, onRemove }) {
 // -------------------------------------------------------------
 // Parameters / Body / Response Table Editor Component
 // -------------------------------------------------------------
-function FieldTableEditor({ title, subtitle, items, hasRequired, onAdd, onUpdate, onRemove }) {
+function FieldTableEditor({
+  title,
+  subtitle,
+  items,
+  hasRequired,
+  requiredLocked = false,
+  onAdd,
+  onUpdate,
+  onRemove,
+}) {
   return (
     <div className="space-y-4">
       {/* Header controls */}
@@ -759,18 +845,24 @@ function FieldTableEditor({ title, subtitle, items, hasRequired, onAdd, onUpdate
                     {hasRequired && (
                       <td className="p-2 text-center">
                         <label className="inline-flex items-center gap-1.5 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={item.required || false}
-                            onChange={(e) => onUpdate(index, 'required', e.target.checked)}
-                            className="w-4 h-4 accent-primary rounded cursor-pointer"
-                          />
-                          <span
-                            className={`text-[11px] font-semibold ${item.required ? 'text-delete' : 'text-dark-muted'
-                              }`}
-                          >
-                            {item.required ? 'Có' : 'Không'}
-                          </span>
+                          {requiredLocked ? (
+                            <span className="text-[11px] font-semibold text-delete">Luôn bắt buộc</span>
+                          ) : (
+                            <>
+                              <input
+                                type="checkbox"
+                                checked={item.required || false}
+                                onChange={(e) => onUpdate(index, 'required', e.target.checked)}
+                                className="w-4 h-4 accent-primary rounded cursor-pointer"
+                              />
+                              <span
+                                className={`text-[11px] font-semibold ${item.required ? 'text-delete' : 'text-dark-muted'
+                                  }`}
+                              >
+                                {item.required ? 'Có' : 'Không'}
+                              </span>
+                            </>
+                          )}
                         </label>
                       </td>
                     )}
@@ -851,7 +943,7 @@ function EmptyState({ title, description, buttonLabel, onAdd }) {
 // -------------------------------------------------------------
 // Live Swagger / Postman Style Preview Component
 // -------------------------------------------------------------
-function DocPreview({ formData, baseUrl, fullDisplayUrl }) {
+function DocPreview({ formData, sampleRequestUrl }) {
   // Generate sample JSON body from fields
   const generateSampleJson = (fields) => {
     if (!fields || fields.length === 0) return null;
@@ -887,8 +979,9 @@ function DocPreview({ formData, baseUrl, fullDisplayUrl }) {
           >
             {formData.method}
           </span>
+          <span className="text-[10px] uppercase tracking-wide text-dark-muted">URL mẫu</span>
           <span className="font-mono text-sm text-dark-text font-semibold break-all">
-            {fullDisplayUrl || '/...'}
+            {sampleRequestUrl || '/...'}
           </span>
         </div>
 
@@ -945,6 +1038,7 @@ function DocPreview({ formData, baseUrl, fullDisplayUrl }) {
               <thead>
                 <tr className="bg-dark/70 text-dark-muted border-b border-dark-border">
                   <th className="py-2 px-3">Tên</th>
+                  <th className="py-2 px-3">Vị trí</th>
                   <th className="py-2 px-3">Kiểu</th>
                   <th className="py-2 px-3">Bắt buộc</th>
                   <th className="py-2 px-3">Ví dụ</th>
@@ -955,6 +1049,7 @@ function DocPreview({ formData, baseUrl, fullDisplayUrl }) {
                 {formData.requestParams.map((p, i) => (
                   <tr key={i}>
                     <td className="py-2 px-3 font-mono text-primary font-medium">{p.name}</td>
+                    <td className="py-2 px-3 text-dark-muted">{p.in === 'path' ? 'Path' : 'Query'}</td>
                     <td className="py-2 px-3">
                       <span className={`px-2 py-0.5 rounded text-[11px] font-mono ${TYPE_COLORS[p.type] || ''}`}>
                         {p.type}

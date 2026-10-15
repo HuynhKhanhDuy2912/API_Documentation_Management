@@ -1,7 +1,17 @@
 import MethodBadge from '../components/MethodBadge';
+import {
+  buildSampleRequestUrl,
+  joinBaseUrl,
+  normalizeRequestParams,
+} from '../utils/requestParameters';
 
 export default function ApiDocDetail({ doc, baseUrl }) {
-  const fullUrl = baseUrl ? baseUrl + doc.url : doc.url;
+  const fullUrl = joinBaseUrl(baseUrl, doc.url);
+  const requestParams = normalizeRequestParams(doc.requestParams || [], doc.url);
+  const pathParams = requestParams.filter((parameter) => parameter.in === 'path');
+  const queryParams = requestParams.filter((parameter) => parameter.in === 'query');
+  const hasParameterExamples = requestParams.some((parameter) => String(parameter.example || '').trim());
+  const sampleUrl = buildSampleRequestUrl(baseUrl, doc.url, requestParams);
 
   return (
     <div className="space-y-6">
@@ -14,6 +24,11 @@ export default function ApiDocDetail({ doc, baseUrl }) {
         {baseUrl && (
           <p className="text-xs text-dark-muted mt-2">
             Base URL: <span className="font-mono">{baseUrl}</span> + <span className="font-mono">{doc.url}</span>
+          </p>
+        )}
+        {hasParameterExamples && (
+          <p className="text-xs text-dark-muted mt-2 break-all">
+            URL mẫu: <span className="font-mono text-primary">{sampleUrl}</span>
           </p>
         )}
       </div>
@@ -51,9 +66,15 @@ export default function ApiDocDetail({ doc, baseUrl }) {
       )}
 
       {/* Request Parameters */}
-      {doc.requestParams?.length > 0 && (
-        <DetailSection title="Request Parameters">
-          <FieldTable fields={doc.requestParams} showRequired />
+      {pathParams.length > 0 && (
+        <DetailSection title="Path Parameters">
+          <FieldTable fields={pathParams} showRequired />
+        </DetailSection>
+      )}
+
+      {queryParams.length > 0 && (
+        <DetailSection title="Query Parameters">
+          <FieldTable fields={queryParams} showRequired />
         </DetailSection>
       )}
 
