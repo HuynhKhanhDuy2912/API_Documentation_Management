@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { getProjects, createProject, updateProject, deleteProject } from '../services/api';
 import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { Plus ,Pencil, Trash2, Search, X, Folder } from 'lucide-react';
+import { Plus, Search, X, Folder } from 'lucide-react';
 
 export default function ProjectList() {
   const [projects, setProjects] = useState([]);
@@ -126,7 +126,7 @@ export default function ProjectList() {
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-hover transition-colors cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-800 transition-colors cursor-pointer"
         >
           <Plus className="w-4 h-4" aria-hidden="true" />
           Tạo Project
@@ -144,7 +144,7 @@ export default function ProjectList() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Tìm kiếm project theo tên hoặc mô tả..."
-            className="w-full pl-10 pr-4 py-2.5 bg-dark-card border border-dark-border rounded-lg text-dark-text text-sm placeholder-dark-muted focus:outline-none focus:border-primary transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-dark-card border border-dark-border rounded-lg text-dark-text text-sm placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors"
           />
           {searchTerm && (
             <button
@@ -174,7 +174,7 @@ export default function ProjectList() {
           {!debouncedSearch && (
             <button
               onClick={openCreateModal}
-              className="px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary-hover transition-colors cursor-pointer"
+              className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-800 transition-colors cursor-pointer"
             >
               Tạo Project
             </button>
@@ -185,10 +185,10 @@ export default function ProjectList() {
           {projects.map((project) => (
             <div
               key={project._id}
-              className="bg-dark-card border border-dark-border rounded-xl p-5 hover:border-primary/50 transition-all duration-200 group"
+              className="bg-dark-card border border-dark-border rounded-xl p-5 hover:border-blue-600 transition-all duration-200 group"
             >
               <Link to={`/projects/${project._id}`} className="no-underline">
-                <h3 className="text-base font-semibold text-dark-text group-hover:text-primary transition-colors">
+                <h3 className="text-base font-semibold text-dark-text group-hover:text-blue-600 transition-colors">
                   {project.name}
                 </h3>
                 <p className="text-sm text-dark-muted mt-2 line-clamp-2">
@@ -201,7 +201,7 @@ export default function ProjectList() {
                   <span className="text-xs text-dark-muted">
                     {new Date(project.createdAt).toLocaleDateString('vi-VN')}
                   </span>
-                  <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                  <span className="text-xs px-2 py-0.5 bg-blue-600 rounded-full">
                     {project.apiCount || 0} APIs
                   </span>
                 </div>
@@ -212,7 +212,9 @@ export default function ProjectList() {
                   onClick={() => openEditModal(project)}
                   className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-dark-muted hover:text-dark-text hover:bg-dark-border rounded-lg transition-colors cursor-pointer"
                 >
-                  <Pencil className="w-4 h-4" aria-hidden="true" />
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
                   Sửa
                 </button>
                 <button
@@ -222,7 +224,9 @@ export default function ProjectList() {
                   }}
                   className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-dark-muted hover:text-delete hover:bg-delete/10 rounded-lg transition-colors cursor-pointer"
                 >
-                  <Trash2 className="w-4 h-4" aria-hidden="true" />
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
                   Xóa
                 </button>
               </div>
@@ -238,7 +242,7 @@ export default function ProjectList() {
           setModalOpen(false);
           setBaseUrlError('');
         }}
-        title={editingProject ? 'Cập nhật Project' : 'Tạo Project mới'}
+        title={editingProject ? 'Cập Nhật Project' : 'Tạo Project Mới'}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -292,7 +296,7 @@ export default function ProjectList() {
             </button>
             <button
               type="submit"
-              className="px-4 py-2.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-hover transition-colors cursor-pointer"
+              className="px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
             >
               {editingProject ? 'Cập nhật' : 'Tạo'}
             </button>

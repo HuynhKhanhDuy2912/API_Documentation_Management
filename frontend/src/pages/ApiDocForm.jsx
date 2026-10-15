@@ -63,8 +63,8 @@ const COMMON_HEADERS = [
 ];
 
 export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = '' }) {
-  const [activeTab, setActiveTab] = useState('general'); // 'general' | 'request' | 'response' | 'preview'
-  const [requestSubTab, setRequestSubTab] = useState('params'); // 'params' | 'headers' | 'body'
+  const [activeTab, setActiveTab] = useState('general');
+  const [requestSubTab, setRequestSubTab] = useState('params');
   const [parameterLocationTab, setParameterLocationTab] = useState('query');
 
   const [formData, setFormData] = useState({
@@ -200,10 +200,9 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
     formData.requestBody.length;
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col h-full">
+    <form onSubmit={handleSubmit} className="flex flex-col">
       {/* Top Method & Endpoint Bar */}
       <div className="p-6 border-b border-dark-border bg-dark/30 space-y-4">
-        {/* API Name input */}
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wider text-dark-muted mb-1.5">
             Tên API <span className="text-delete">*</span>
@@ -214,7 +213,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
             onChange={(e) => handleChange('name', e.target.value)}
             placeholder="VD: Đăng ký tài khoản người dùng mới"
             required
-            className="w-full px-4 py-2.5 bg-dark border border-dark-border rounded-xl text-dark-text text-sm font-medium placeholder-dark-muted focus:outline-none focus:border-primary transition-colors"
+            className="w-full px-4 py-2.5 bg-dark border border-dark-border rounded-xl text-dark-text text-sm font-medium placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors"
           />
         </div>
 
@@ -253,7 +252,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
                 onChange={(e) => handleChange('url', e.target.value)}
                 placeholder="/api/v1/users/{userId}"
                 required
-                className="w-full px-4 py-2.5 bg-dark border border-dark-border rounded-xl text-dark-text font-mono text-sm placeholder-dark-muted focus:outline-none focus:border-primary transition-colors"
+                className="w-full px-4 py-2.5 bg-dark border border-dark-border rounded-xl text-dark-text font-mono text-sm placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors"
               />
             </div>
           </div>
@@ -263,7 +262,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
             <div className="mt-2.5 flex items-center justify-between text-xs px-3.5 py-2 bg-dark/60 border border-dark-border/60 rounded-lg">
               <div className="flex items-center gap-2 overflow-hidden truncate">
                 <span className="text-dark-muted shrink-0">URL đầy đủ:</span>
-                <span className="font-mono text-primary truncate">
+                <span className="font-mono truncate">
                   {fullDisplayUrl || `${baseUrl}/...`}
                 </span>
               </div>
@@ -300,7 +299,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
           type="button"
           onClick={() => setActiveTab('general')}
           className={`flex items-center gap-2 py-3 px-3 text-sm font-medium border-b-2 transition-colors cursor-pointer whitespace-nowrap ${activeTab === 'general'
-            ? 'border-primary text-primary font-semibold'
+            ? 'border-blue-600 text-blue-600 font-semibold'
             : 'border-transparent text-dark-muted hover:text-dark-text'
             }`}
         >
@@ -314,7 +313,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
           type="button"
           onClick={() => setActiveTab('request')}
           className={`flex items-center gap-2 py-3 px-3 text-sm font-medium border-b-2 transition-colors cursor-pointer whitespace-nowrap ${activeTab === 'request'
-            ? 'border-primary text-primary font-semibold'
+            ? 'border-blue-600 text-blue-600 font-semibold'
             : 'border-transparent text-dark-muted hover:text-dark-text'
             }`}
         >
@@ -323,7 +322,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
           </svg>
           Request
           {totalRequestItems > 0 && (
-            <span className="px-1.5 py-0.5 text-[11px] font-bold rounded-full bg-primary/20 text-primary">
+            <span className="px-1.5 py-0.5 text-[11px] font-bold rounded-full bg-blue-600/20 text-blue-600">
               {totalRequestItems}
             </span>
           )}
@@ -333,7 +332,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
           type="button"
           onClick={() => setActiveTab('response')}
           className={`flex items-center gap-2 py-3 px-3 text-sm font-medium border-b-2 transition-colors cursor-pointer whitespace-nowrap ${activeTab === 'response'
-            ? 'border-primary text-primary font-semibold'
+            ? 'border-blue-600 text-blue-600 font-semibold'
             : 'border-transparent text-dark-muted hover:text-dark-text'
             }`}
         >
@@ -342,7 +341,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
           </svg>
           Response
           {formData.response.length > 0 && (
-            <span className="px-1.5 py-0.5 text-[11px] font-bold rounded-full bg-primary/20 text-primary">
+            <span className="px-1.5 py-0.5 text-[11px] font-bold rounded-full bg-blue-600/20 text-blue-600">
               {formData.response.length}
             </span>
           )}
@@ -352,7 +351,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
           type="button"
           onClick={() => setActiveTab('preview')}
           className={`flex items-center gap-2 py-3 px-3 text-sm font-medium border-b-2 transition-colors cursor-pointer whitespace-nowrap ${activeTab === 'preview'
-            ? 'border-primary text-primary font-semibold'
+            ? 'border-blue-600 text-blue-600 font-semibold'
             : 'border-transparent text-dark-muted hover:text-dark-text'
             }`}
         >
@@ -365,7 +364,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
       </div>
 
       {/* Tab Contents Area */}
-      <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
+      <div className="p-6">
         {/* TAB 1: GENERAL INFO */}
         {activeTab === 'general' && (
           <div className="space-y-6 max-w-3xl">
@@ -405,14 +404,14 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
                 onChange={(e) => handleChange('description', e.target.value)}
                 placeholder="Nhập mô tả hoạt động của API, các quyền cần có (roles/permissions), logic xử lý chính hoặc các mã lỗi cần lưu ý..."
                 rows={5}
-                className="w-full px-4 py-3 bg-dark border border-dark-border rounded-xl text-dark-text text-sm placeholder-dark-muted focus:outline-none focus:border-primary transition-colors resize-none leading-relaxed"
+                className="w-full px-4 py-3 bg-dark border border-dark-border rounded-xl text-dark-text text-sm placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors resize-none leading-relaxed"
               />
             </div>
 
             {/* Documentation Overview Card */}
             <div className="p-4 rounded-xl bg-dark/40 border border-dark-border/80 space-y-3">
               <h4 className="text-xs font-semibold text-dark-text uppercase tracking-wider flex items-center gap-2">
-                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Tóm tắt cấu hình API
@@ -446,13 +445,12 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
         {/* TAB 2: REQUEST */}
         {activeTab === 'request' && (
           <div className="space-y-5">
-            {/* Request Sub-tabs (Parameters, Headers, Body) */}
             <div className="flex items-center gap-2 p-1 bg-dark/60 border border-dark-border/80 rounded-xl w-fit">
               <button
                 type="button"
                 onClick={() => setRequestSubTab('params')}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${requestSubTab === 'params'
-                  ? 'bg-primary text-white shadow'
+                  ? 'bg-blue-600 text-white shadow'
                   : 'text-dark-muted hover:text-dark-text'
                   }`}
               >
@@ -471,7 +469,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
                 type="button"
                 onClick={() => setRequestSubTab('headers')}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${requestSubTab === 'headers'
-                  ? 'bg-primary text-white shadow'
+                  ? 'bg-blue-600 text-white shadow'
                   : 'text-dark-muted hover:text-dark-text'
                   }`}
               >
@@ -490,7 +488,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
                 type="button"
                 onClick={() => setRequestSubTab('body')}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${requestSubTab === 'body'
-                  ? 'bg-primary text-white shadow'
+                  ? 'bg-blue-600 text-white shadow'
                   : 'text-dark-muted hover:text-dark-text'
                   }`}
               >
@@ -519,7 +517,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
                       type="button"
                       onClick={() => setParameterLocationTab(tab.value)}
                       className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${parameterLocationTab === tab.value
-                        ? 'bg-primary text-white shadow'
+                        ? 'bg-blue-600 text-white shadow'
                         : 'text-dark-muted hover:text-dark-text'
                         }`}
                     >
@@ -605,13 +603,13 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
       </div>
 
       {/* Sticky Bottom Actions Bar */}
-      <div className="flex items-center justify-between px-6 py-4 border-t border-dark-border bg-dark/50 sticky bottom-0 z-20 backdrop-blur-md">
+      <div className="flex items-center justify-between px-6 py-4 border-t border-dark-border bg-dark/50 sticky bottom-0 z-20 backdrop-blur-md rounded-b-xl">
         <div className="flex items-center gap-3 text-xs text-dark-muted hidden sm:flex">
           <span className="flex items-center gap-1.5">
-            <span className={`w-2 h-2 rounded-full ${formData.name ? 'bg-get' : 'bg-dark-muted'}`} />
+            <span className={`w-1 h-1 rounded-full ${formData.name ? 'bg-get' : 'bg-dark-muted'}`} />
             {formData.name || 'Chưa đặt tên API'}
           </span>
-          <span>•</span>
+          <span className={`w-1 h-1 rounded-full bg-dark-muted`} />
           <span className="font-mono text-dark-text">{formData.method}</span>
         </div>
 
@@ -625,7 +623,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
           </button>
           <button
             type="submit"
-            className="flex items-center gap-2 px-5 py-2 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-hover shadow-lg shadow-primary/25 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-600 shadow-lg shadow-blue/25 transition-all cursor-pointer"
           >
             <span>{initialData ? 'Cập nhật API' : 'Lưu API Document'}</span>
           </button>
@@ -655,7 +653,7 @@ function HeadersTableEditor({ items, onAdd, onAddPreset, onUpdate, onRemove }) {
         <button
           type="button"
           onClick={onAdd}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary border border-primary/30 rounded-lg text-xs font-semibold hover:bg-primary/20 transition-colors cursor-pointer w-fit"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white border border-blue-600 rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors cursor-pointer w-fit"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -779,7 +777,7 @@ function FieldTableEditor({
         <button
           type="button"
           onClick={onAdd}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary border border-primary/30 rounded-lg text-xs font-semibold hover:bg-primary/20 transition-colors cursor-pointer w-fit"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white border border-blue-600 rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors cursor-pointer w-fit"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -821,7 +819,7 @@ function FieldTableEditor({
                         value={item.name || ''}
                         onChange={(e) => onUpdate(index, 'name', e.target.value)}
                         placeholder="VD: email"
-                        className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text font-mono text-xs placeholder-dark-muted focus:outline-none focus:border-primary transition-colors"
+                        className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text font-mono text-xs placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors"
                       />
                     </td>
 
@@ -830,7 +828,7 @@ function FieldTableEditor({
                       <select
                         value={item.type || 'String'}
                         onChange={(e) => onUpdate(index, 'type', e.target.value)}
-                        className={`w-full px-2 py-1.5 bg-dark border border-dark-border/80 rounded-lg font-mono text-xs font-semibold focus:outline-none focus:border-primary transition-colors cursor-pointer ${TYPE_COLORS[item.type] || 'text-dark-text'
+                        className={`w-full px-2 py-1.5 bg-dark border border-dark-border/80 rounded-lg font-mono text-xs font-semibold focus:outline-none focus:border-blue-600 transition-colors cursor-pointer ${TYPE_COLORS[item.type] || 'text-dark-text'
                           }`}
                       >
                         {DATA_TYPES.map((t) => (
@@ -874,7 +872,7 @@ function FieldTableEditor({
                         value={item.example || ''}
                         onChange={(e) => onUpdate(index, 'example', e.target.value)}
                         placeholder="VD: user@example.com"
-                        className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text font-mono text-xs placeholder-dark-muted focus:outline-none focus:border-primary transition-colors"
+                        className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text font-mono text-xs placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors"
                       />
                     </td>
 
@@ -885,7 +883,7 @@ function FieldTableEditor({
                         value={item.description || ''}
                         onChange={(e) => onUpdate(index, 'description', e.target.value)}
                         placeholder="Mô tả ý nghĩa của trường này..."
-                        className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text text-xs placeholder-dark-muted focus:outline-none focus:border-primary transition-colors"
+                        className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text text-xs placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors"
                       />
                     </td>
 
@@ -913,9 +911,6 @@ function FieldTableEditor({
   );
 }
 
-// -------------------------------------------------------------
-// Empty State Placeholder Component
-// -------------------------------------------------------------
 function EmptyState({ title, description, buttonLabel, onAdd }) {
   return (
     <div className="text-center py-8 px-4 rounded-xl border border-dashed border-dark-border bg-dark/20">
@@ -931,7 +926,7 @@ function EmptyState({ title, description, buttonLabel, onAdd }) {
         onClick={onAdd}
         className="px-3.5 py-1.5 bg-dark-border/80 hover:bg-dark-border text-dark-text text-xs font-semibold rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5"
       >
-        <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
         </svg>
         {buttonLabel}
@@ -940,11 +935,7 @@ function EmptyState({ title, description, buttonLabel, onAdd }) {
   );
 }
 
-// -------------------------------------------------------------
-// Live Swagger / Postman Style Preview Component
-// -------------------------------------------------------------
 function DocPreview({ formData, sampleRequestUrl }) {
-  // Generate sample JSON body from fields
   const generateSampleJson = (fields) => {
     if (!fields || fields.length === 0) return null;
     const obj = {};
@@ -999,8 +990,8 @@ function DocPreview({ formData, sampleRequestUrl }) {
       {/* Headers Preview */}
       {formData.headers.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-dark-muted flex items-center gap-2">
-            <span className="w-1.5 h-3.5 bg-primary rounded-full" />
+          <h4 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+            <span className="w-1 h-4 bg-blue-600 rounded-full" />
             Headers ({formData.headers.length})
           </h4>
           <div className="border border-dark-border rounded-xl overflow-hidden bg-dark/30">
@@ -1015,7 +1006,7 @@ function DocPreview({ formData, sampleRequestUrl }) {
               <tbody className="divide-y divide-dark-border/40">
                 {formData.headers.map((h, i) => (
                   <tr key={i}>
-                    <td className="py-2 px-3 font-mono text-primary font-medium">{h.key}</td>
+                    <td className="py-2 px-3 font-mono text-blue-600 font-medium">{h.key}</td>
                     <td className="py-2 px-3 font-mono text-dark-text">{h.value || '—'}</td>
                     <td className="py-2 px-3 text-dark-muted">{h.description || '—'}</td>
                   </tr>
@@ -1029,8 +1020,8 @@ function DocPreview({ formData, sampleRequestUrl }) {
       {/* Parameters Preview */}
       {formData.requestParams.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-dark-muted flex items-center gap-2">
-            <span className="w-1.5 h-3.5 bg-primary rounded-full" />
+          <h4 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+            <span className="w-1 h-4 bg-blue-600 rounded-full" />
             Parameters ({formData.requestParams.length})
           </h4>
           <div className="border border-dark-border rounded-xl overflow-hidden bg-dark/30">
@@ -1048,7 +1039,7 @@ function DocPreview({ formData, sampleRequestUrl }) {
               <tbody className="divide-y divide-dark-border/40">
                 {formData.requestParams.map((p, i) => (
                   <tr key={i}>
-                    <td className="py-2 px-3 font-mono text-primary font-medium">{p.name}</td>
+                    <td className="py-2 px-3 font-mono text-blue-600 font-medium">{p.name}</td>
                     <td className="py-2 px-3 text-dark-muted">{p.in === 'path' ? 'Path' : 'Query'}</td>
                     <td className="py-2 px-3">
                       <span className={`px-2 py-0.5 rounded text-[11px] font-mono ${TYPE_COLORS[p.type] || ''}`}>
@@ -1075,8 +1066,8 @@ function DocPreview({ formData, sampleRequestUrl }) {
       {/* Request Body & Sample JSON Preview */}
       {formData.requestBody.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-dark-muted flex items-center gap-2">
-            <span className="w-1.5 h-3.5 bg-primary rounded-full" />
+          <h4 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+            <span className="w-1 h-4 bg-blue-600 rounded-full" />
             Request Body ({formData.requestBody.length} trường)
           </h4>
           {sampleBodyJson && (
@@ -1090,8 +1081,8 @@ function DocPreview({ formData, sampleRequestUrl }) {
       {/* Response Preview */}
       {formData.response.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-dark-muted flex items-center gap-2">
-            <span className="w-1.5 h-3.5 bg-primary rounded-full" />
+          <h4 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+            <span className="w-1 h-4 bg-blue-600 rounded-full" />
             Response Schema ({formData.response.length} trường)
           </h4>
           {sampleResponseJson && (

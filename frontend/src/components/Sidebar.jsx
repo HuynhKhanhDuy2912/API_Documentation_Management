@@ -13,7 +13,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="p-5 border-b border-dark-border">
         <Link to="/" className="flex items-center gap-2 no-underline">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <File className="w-5 h-5" aria-hidden="true" />
           </div>
           <span className="text-lg font-semibold text-dark-text">API Docs</span>
@@ -25,7 +25,7 @@ export default function Sidebar() {
         <Link
           to="/"
           className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium no-underline transition-all duration-200 ${isActive('/')
-              ? 'bg-primary text-white'
+              ? 'bg-blue-600 text-white'
               : 'text-dark-muted hover:bg-dark-border hover:text-dark-text'
             }`}
         >
@@ -39,8 +39,8 @@ export default function Sidebar() {
         {user && (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                <span className="text-xs font-semibold text-primary">
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0">
+                <span className="text-xs font-bold text-blue-700">
                   {user.name?.charAt(0).toUpperCase()}
                 </span>
               </div>
