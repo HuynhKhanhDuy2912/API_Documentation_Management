@@ -1,5 +1,38 @@
 const { body, validationResult } = require('express-validator');
 
+const validateEndpointPath = (value) => {
+  const normalizedEndpoint = String(value || '')
+    .trim()
+    .replace(/\/:([A-Za-z_][A-Za-z0-9_]*)/g, '/{$1}');
+
+  if (!normalizedEndpoint) {
+    throw new Error('Endpoint là bắt buộc');
+  }
+  if (!normalizedEndpoint.startsWith('/') || normalizedEndpoint.startsWith('//')) {
+    throw new Error('Endpoint phải là đường dẫn bắt đầu bằng /, ví dụ /api/v1/products');
+  }
+  if (normalizedEndpoint.includes('\\') || /%5c/i.test(normalizedEndpoint)) {
+    throw new Error('Endpoint chứa ký tự không hợp');
+  }
+  if (/\s/.test(normalizedEndpoint)) {
+    throw new Error('Endpoint không được chứa khoảng trắng');
+  }
+
+  const path = normalizedEndpoint.split(/[?#]/, 1)[0];
+  const pathWithoutParameters = path.replace(/\{[A-Za-z_][A-Za-z0-9_]*\}/g, 'parameter');
+  if (/[{}]/.test(pathWithoutParameters)) {
+    throw new Error('Path parameter phải có dạng {productId} với tên hợp lệ');
+  }
+  if (!/^\/[A-Za-z0-9._~!$&'()*+,;=:@%\/-]*$/.test(pathWithoutParameters)) {
+    throw new Error('Endpoint chứa ký tự không hợp lệ trong URL path');
+  }
+  if (/%(?![0-9A-Fa-f]{2})/.test(path)) {
+    throw new Error('Endpoint có mã hóa phần trăm không hợp lệ');
+  }
+
+  return true;
+};
+
 const extractPathParameterNames = (url = '') => {
   const names = new Set();
   const pattern = /(?:\/:([A-Za-z_][A-Za-z0-9_]*)|\{([A-Za-z_][A-Za-z0-9_]*)\})/g;
@@ -82,9 +115,10 @@ const validateProject = [
     .notEmpty().withMessage('Tên project là bắt buộc')
     .trim(),
   body('baseUrl')
-    .optional({ values: 'falsy' })
     .trim()
-    .isURL({ require_protocol: true })
+    .notEmpty().withMessage('Base URL là bắt buộc')
+    .bail()
+    .isURL({ require_protocol: true, require_tld: false })
     .withMessage('Base URL không hợp lệ (VD: https://api.example.com/v1)'),
   body('description')
     .optional()
@@ -98,7 +132,9 @@ const validateApiDoc = [
     .trim(),
   body('url')
     .notEmpty().withMessage('URL là bắt buộc')
-    .trim(),
+    .trim()
+    .bail()
+    .custom(validateEndpointPath),
   body('method')
     .notEmpty().withMessage('Method là bắt buộc')
     .isIn(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import {
   buildSampleRequestUrl,
+  getEndpointPathError,
   getPathParameterNames,
   joinBaseUrl,
   normalizeEndpointPath,
@@ -80,7 +81,7 @@ const COMMON_HEADERS = [
 export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = '' }) {
   const [activeTab, setActiveTab] = useState('general');
   const [requestSubTab, setRequestSubTab] = useState('params');
-  const [parameterLocationTab, setParameterLocationTab] = useState('query');
+  const [parameterLocationTab, setParameterLocationTab] = useState('path');
 
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
@@ -97,6 +98,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
   });
 
   const [copiedUrl, setCopiedUrl] = useState(false);
+  const [endpointError, setEndpointError] = useState('');
 
   const requestParamEntries = formData.requestParams.map((parameter, index) => ({
     parameter,
@@ -119,6 +121,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (field === 'url' && endpointError) setEndpointError('');
   };
 
   const addItem = (field, emptyItem) => {
@@ -174,6 +177,15 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
+
+    const normalizedUrl = normalizeEndpointPath(String(formData.url || '').trim());
+    const endpointValidationError = getEndpointPathError(normalizedUrl);
+    if (endpointValidationError) {
+      setEndpointError(endpointValidationError);
+      toast.error(endpointValidationError);
+      return;
+    }
+    setEndpointError('');
 
     const missingHeaderIndex = formData.headers.findIndex(
       (header) => !String(header?.key || '').trim()
@@ -248,8 +260,6 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
       toast.error(`Giá trị mẫu của "${field.name}" phải là JSON ${field.type} hợp lệ.`);
       return;
     }
-
-    const normalizedUrl = normalizeEndpointPath(formData.url.trim());
 
     const cleanedData = {
       ...formData,
@@ -353,10 +363,17 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
                 onChange={(e) => handleChange('url', e.target.value)}
                 placeholder="/api/v1/users/{userId}"
                 required
-                className="w-full px-4 py-2.5 bg-dark border border-dark-border rounded-xl text-dark-text font-mono text-sm placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors"
+                aria-invalid={Boolean(endpointError)}
+                aria-describedby={endpointError ? 'endpoint-error' : undefined}
+                className={`w-full px-4 py-2.5 bg-dark border rounded-xl text-dark-text font-mono text-sm placeholder-dark-muted focus:outline-none transition-colors ${endpointError ? 'border-delete focus:border-delete' : 'border-dark-border focus:border-blue-600'}`}
               />
             </div>
           </div>
+          {endpointError && (
+            <p id="endpoint-error" role="alert" className="mt-1.5 text-xs text-delete">
+              {endpointError}
+            </p>
+          )}
 
           {/* Full URL Live Preview */}
           {baseUrl && (
@@ -1187,9 +1204,9 @@ function DocPreview({ formData, sampleRequestUrl }) {
                     </td>
                     <td className="py-2 px-3">
                       {p.required ? (
-                        <span className="text-delete font-semibold">Bắt buộc</span>
+                        <span className="text-white font-semibold">Có</span>
                       ) : (
-                        <span className="text-dark-muted">Tùy chọn</span>
+                        <span className="text-dark-muted">Không</span>
                       )}
                     </td>
                     <td className="py-2 px-3 font-mono text-dark-muted">{p.example || '—'}</td>

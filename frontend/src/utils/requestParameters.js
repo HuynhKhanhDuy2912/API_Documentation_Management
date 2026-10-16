@@ -39,6 +39,35 @@ export function normalizeEndpointPath(endpoint = '') {
   return String(endpoint).replace(/\/:([A-Za-z_][A-Za-z0-9_]*)/g, '/{$1}');
 }
 
+export function getEndpointPathError(endpoint = '') {
+  const normalizedEndpoint = normalizeEndpointPath(String(endpoint).trim());
+
+  if (!normalizedEndpoint) return 'Endpoint là bắt buộc.';
+  if (!normalizedEndpoint.startsWith('/') || normalizedEndpoint.startsWith('//')) {
+    return 'Endpoint phải là đường dẫn bắt đầu bằng /, ví dụ /api/v1/products.';
+  }
+  if (normalizedEndpoint.includes('\\') || /%5c/i.test(normalizedEndpoint)) {
+    return 'Endpoint chứa ký tự không hợp lệ trong URL path.';
+  }
+  if (/\s/.test(normalizedEndpoint)) {
+    return 'Endpoint không được chứa khoảng trắng.';
+  }
+
+  const path = normalizedEndpoint.split(/[?#]/, 1)[0];
+  const pathWithoutParameters = path.replace(/\{[A-Za-z_][A-Za-z0-9_]*\}/g, 'parameter');
+  if (/[{}]/.test(pathWithoutParameters)) {
+    return 'Path parameter phải có dạng {productId} với tên hợp lệ.';
+  }
+  if (!/^\/[A-Za-z0-9._~!$&'()*+,;=:@%\/-]*$/.test(pathWithoutParameters)) {
+    return 'Endpoint chứa ký tự không hợp lệ trong URL path.';
+  }
+  if (/%(?![0-9A-Fa-f]{2})/.test(path)) {
+    return 'Endpoint có mã hóa phần trăm không hợp lệ.';
+  }
+
+  return '';
+}
+
 export function joinBaseUrl(baseUrl = '', endpoint = '') {
   if (!endpoint) return baseUrl;
   const normalizedEndpoint = normalizeEndpointPath(endpoint);

@@ -14,8 +14,8 @@ const projectSchema = new mongoose.Schema(
     },
     baseUrl: {
       type: String,
+      required: [true, 'Base URL là bắt buộc'],
       trim: true,
-      default: '',
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,

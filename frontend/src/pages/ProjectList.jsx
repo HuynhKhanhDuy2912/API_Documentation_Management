@@ -63,7 +63,6 @@ export default function ProjectList() {
   };
 
   const isValidUrl = (url) => {
-    if (!url) return true;
     try {
       const parsed = new URL(url);
       return ['http:', 'https:'].includes(parsed.protocol);
@@ -75,18 +74,24 @@ export default function ProjectList() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.baseUrl && !isValidUrl(formData.baseUrl)) {
+    const baseUrl = String(formData.baseUrl || '').trim();
+    if (!baseUrl) {
+      setBaseUrlError('Base URL là bắt buộc.');
+      return;
+    }
+    if (!isValidUrl(baseUrl)) {
       setBaseUrlError('URL không hợp lệ. Phải bắt đầu bằng http:// hoặc https://');
       return;
     }
     setBaseUrlError('');
+    const projectData = { ...formData, baseUrl };
 
     try {
       if (editingProject) {
-        await updateProject(editingProject._id, formData);
+        await updateProject(editingProject._id, projectData);
         toast.success('Cập nhật project thành công');
       } else {
-        await createProject(formData);
+        await createProject(projectData);
         toast.success('Tạo project thành công');
       }
       setModalOpen(false);
@@ -202,7 +207,7 @@ export default function ProjectList() {
                     {new Date(project.createdAt).toLocaleDateString('vi-VN')}
                   </span>
                   <span className="text-xs px-2 py-0.5 bg-blue-600 rounded-full">
-                    {project.apiCount || 0} APIs
+                    {project.apiCount || 0} API
                   </span>
                 </div>
               </Link>
@@ -257,10 +262,12 @@ export default function ProjectList() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-dark-text mb-1.5">Base URL</label>
+            <label className="block text-sm font-medium text-dark-text mb-1.5">Base URL *</label>
             <input
               type="text"
               value={formData.baseUrl || ''}
+              required
+              aria-invalid={Boolean(baseUrlError)}
               onChange={(e) => {
                 setFormData({ ...formData, baseUrl: e.target.value });
                 if (baseUrlError) setBaseUrlError('');
