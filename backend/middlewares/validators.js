@@ -49,6 +49,20 @@ const validateRequestParameterLocations = (parameters, { req }) => {
   return true;
 };
 
+const validateArrayItemField = (items, fieldName, itemLabel, fieldLabel = fieldName) => {
+  if (!Array.isArray(items)) return true;
+
+  const invalidIndex = items.findIndex(
+    (item) => !item || typeof item[fieldName] !== 'string' || !item[fieldName].trim()
+  );
+
+  if (invalidIndex !== -1) {
+    throw new Error(`${itemLabel} thứ ${invalidIndex + 1}: ${fieldLabel} không được để trống`);
+  }
+
+  return true;
+};
+
 const handleValidation = (req, res, next) => {
   const errors = validationResult(req);
 
@@ -94,19 +108,16 @@ const validateApiDoc = [
     .trim(),
   body('headers')
     .optional()
-    .isArray().withMessage('Headers phải là mảng'),
-  body('headers.*.key')
-    .optional()
-    .notEmpty().withMessage('Header key không được để trống'),
+    .isArray().withMessage('Headers phải là mảng')
+    .bail()
+    .custom((items) => validateArrayItemField(items, 'key', 'Header'))
+    .custom((items) => validateArrayItemField(items, 'value', 'Header')),
   body('requestParams')
     .custom((value) => value === undefined || Array.isArray(value))
     .withMessage('Request Params phải là mảng')
     .bail()
-    .custom(validateRequestParameterLocations),
-  body('requestParams.*.name')
-    .optional()
-    .trim()
-    .notEmpty().withMessage('Tên trường request param không được để trống'),
+    .custom(validateRequestParameterLocations)
+    .custom((items) => validateArrayItemField(items, 'name', 'Request parameter', 'Tên trường')),
   body('requestParams.*.in')
     .trim()
     .notEmpty().withMessage('Vị trí parameter phải là path hoặc query')
@@ -115,16 +126,14 @@ const validateApiDoc = [
     .isBoolean().withMessage('Trạng thái bắt buộc của parameter phải là boolean'),
   body('requestBody')
     .optional()
-    .isArray().withMessage('Request Body phải là mảng'),
-  body('requestBody.*.name')
-    .optional()
-    .notEmpty().withMessage('Tên trường request body không được để trống'),
+    .isArray().withMessage('Request Body phải là mảng')
+    .bail()
+    .custom((items) => validateArrayItemField(items, 'name', 'Request body', 'Tên trường')),
   body('response')
     .optional()
-    .isArray().withMessage('Response phải là mảng'),
-  body('response.*.name')
-    .optional()
-    .notEmpty().withMessage('Tên trường response không được để trống'),
+    .isArray().withMessage('Response phải là mảng')
+    .bail()
+    .custom((items) => validateArrayItemField(items, 'name', 'Response field', 'Tên trường')),
   handleValidation,
 ];
 

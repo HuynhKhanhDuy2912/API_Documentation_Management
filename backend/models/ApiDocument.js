@@ -3,7 +3,11 @@ const mongoose = require('mongoose');
 const headerSchema = new mongoose.Schema(
   {
     key: { type: String, required: true, trim: true },
-    value: { type: String, trim: true, default: '' },
+    value: {
+      type: String,
+      required: [true, 'Header value là bắt buộc'],
+      trim: true,
+    },
     description: { type: String, trim: true, default: '' },
   },
   { _id: false }
