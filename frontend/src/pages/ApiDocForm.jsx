@@ -98,6 +98,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
   });
 
   const [copiedUrl, setCopiedUrl] = useState(false);
+  const [nameError, setNameError] = useState('');
   const [endpointError, setEndpointError] = useState('');
 
   const requestParamEntries = formData.requestParams.map((parameter, index) => ({
@@ -121,6 +122,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (field === 'name' && nameError) setNameError('');
     if (field === 'url' && endpointError) setEndpointError('');
   };
 
@@ -177,6 +179,14 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
+
+    const normalizedName = String(formData.name || '').trim();
+    if (!normalizedName) {
+      setNameError('Tên API là bắt buộc.');
+      toast.error('Tên API là bắt buộc.');
+      return;
+    }
+    setNameError('');
 
     const normalizedUrl = normalizeEndpointPath(String(formData.url || '').trim());
     const endpointValidationError = getEndpointPathError(normalizedUrl);
@@ -263,7 +273,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
 
     const cleanedData = {
       ...formData,
-      name: formData.name.trim(),
+      name: normalizedName,
       url: normalizedUrl,
       description: formData.description.trim(),
       headers: formData.headers.map((header) => ({
@@ -323,8 +333,9 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
             placeholder="VD: Đăng ký tài khoản người dùng mới"
-            required
-            className="w-full px-4 py-2.5 bg-dark border border-dark-border rounded-xl text-dark-text text-sm font-medium placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors"
+            aria-invalid={Boolean(nameError)}
+            aria-describedby={nameError ? 'api-name-error' : undefined}
+            className={`w-full px-4 py-2.5 bg-dark border rounded-xl text-dark-text text-sm font-medium placeholder-dark-muted focus:outline-none transition-colors ${nameError ? 'border-delete focus:border-delete' : 'border-dark-border focus:border-blue-600'}`}
           />
         </div>
 
@@ -362,18 +373,12 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
                 value={formData.url}
                 onChange={(e) => handleChange('url', e.target.value)}
                 placeholder="/api/v1/users/{userId}"
-                required
                 aria-invalid={Boolean(endpointError)}
                 aria-describedby={endpointError ? 'endpoint-error' : undefined}
                 className={`w-full px-4 py-2.5 bg-dark border rounded-xl text-dark-text font-mono text-sm placeholder-dark-muted focus:outline-none transition-colors ${endpointError ? 'border-delete focus:border-delete' : 'border-dark-border focus:border-blue-600'}`}
               />
             </div>
           </div>
-          {endpointError && (
-            <p id="endpoint-error" role="alert" className="mt-1.5 text-xs text-delete">
-              {endpointError}
-            </p>
-          )}
 
           {/* Full URL Live Preview */}
           {baseUrl && (

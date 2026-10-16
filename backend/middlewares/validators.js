@@ -112,8 +112,9 @@ const handleValidation = (req, res, next) => {
 
 const validateProject = [
   body('name')
+    .trim()
     .notEmpty().withMessage('Tên project là bắt buộc')
-    .trim(),
+    .bail(),
   body('baseUrl')
     .trim()
     .notEmpty().withMessage('Base URL là bắt buộc')
@@ -175,14 +176,14 @@ const validateApiDoc = [
 
 const validateRegister = [
   body('name')
-    .notEmpty().withMessage('Tên hiển thị là bắt buộc')
+    .notEmpty().withMessage('Vui lòng nhập tên hiển thị')
     .trim(),
   body('email')
-    .notEmpty().withMessage('Email là bắt buộc')
+    .notEmpty().withMessage('Vui lòng nhập email')
     .isEmail().withMessage('Email không hợp lệ')
     .normalizeEmail(),
   body('password')
-    .notEmpty().withMessage('Mật khẩu là bắt buộc')
+    .notEmpty().withMessage('Vui lòng nhập mật khẩu')
     .isLength({ min: 6 }).withMessage('Mật khẩu phải có ít nhất 6 ký tự'),
   body('confirmPassword')
     .notEmpty().withMessage('Xác nhận mật khẩu là bắt buộc')
@@ -197,10 +198,10 @@ const validateRegister = [
 
 const validateLogin = [
   body('email')
-    .notEmpty().withMessage('Email là bắt buộc')
+    .notEmpty().withMessage('Vui lòng nhập email')
     .isEmail().withMessage('Email không hợp lệ'),
   body('password')
-    .notEmpty().withMessage('Mật khẩu là bắt buộc'),
+    .notEmpty().withMessage('Vui lòng nhập mật khẩu'),
   handleValidation,
 ];
 

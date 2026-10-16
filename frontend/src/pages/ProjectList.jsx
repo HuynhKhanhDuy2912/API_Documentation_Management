@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { getProjects, createProject, updateProject, deleteProject } from '../services/api';
 import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { Plus, Search, X, Folder } from 'lucide-react';
+import { Plus, Search, X, Folder, Pencil, Trash, Edit } from 'lucide-react';
 
 export default function ProjectList() {
   const [projects, setProjects] = useState([]);
@@ -18,6 +18,7 @@ export default function ProjectList() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [formData, setFormData] = useState({ name: '', description: '', baseUrl: '' });
+  const [nameError, setNameError] = useState('');
   const [baseUrlError, setBaseUrlError] = useState('');
 
   // Confirm dialog
@@ -51,6 +52,7 @@ export default function ProjectList() {
   const openCreateModal = () => {
     setEditingProject(null);
     setFormData({ name: '', description: '', baseUrl: '' });
+    setNameError('');
     setBaseUrlError('');
     setModalOpen(true);
   };
@@ -58,6 +60,7 @@ export default function ProjectList() {
   const openEditModal = (project) => {
     setEditingProject(project);
     setFormData({ name: project.name, description: project.description, baseUrl: project.baseUrl || '' });
+    setNameError('');
     setBaseUrlError('');
     setModalOpen(true);
   };
@@ -74,6 +77,14 @@ export default function ProjectList() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const name = String(formData.name || '').trim();
+    if (!name) {
+      setNameError('Tên project là bắt buộc.');
+      setBaseUrlError('');
+      return;
+    }
+    setNameError('');
+
     const baseUrl = String(formData.baseUrl || '').trim();
     if (!baseUrl) {
       setBaseUrlError('Base URL là bắt buộc.');
@@ -84,7 +95,7 @@ export default function ProjectList() {
       return;
     }
     setBaseUrlError('');
-    const projectData = { ...formData, baseUrl };
+    const projectData = { ...formData, name, baseUrl };
 
     try {
       if (editingProject) {
@@ -126,8 +137,8 @@ export default function ProjectList() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-dark-text">Quản Lý Project</h1>
-          <p className="text-sm text-dark-muted mt-1">{projects.length} project</p>
+          <h1 className="flex gap-2 text-2xl font-bold text-dark-text">Quản Lý Project <p className="text-sm text-dark-muted mt-2">( {projects.length} project )</p></h1>
+          <p className="text-[13px] mt-2">Quản lý tài liệu API theo từng project</p>
         </div>
         <button
           onClick={openCreateModal}
@@ -212,14 +223,12 @@ export default function ProjectList() {
                 </div>
               </Link>
 
-              <div className="flex gap-2 mt-4 pt-4 border-t border-dark-border">
+              <div className="flex justify-between gap-2 mt-4 pt-4 border-t border-dark-border">
                 <button
                   onClick={() => openEditModal(project)}
-                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-dark-muted hover:text-dark-text hover:bg-dark-border rounded-lg transition-colors cursor-pointer"
+                  className="flex border items-center justify-center gap-1.5 px-2 py-2 text-[13px] font-medium text-dark-muted hover:text-dark-text hover:bg-dark-border rounded-lg transition-colors cursor-pointer"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
+                  <Edit className="w-4 h-4" aria-hidden="true" />
                   Sửa
                 </button>
                 <button
@@ -227,11 +236,9 @@ export default function ProjectList() {
                     setDeletingId(project._id);
                     setConfirmOpen(true);
                   }}
-                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-dark-muted hover:text-delete hover:bg-delete/10 rounded-lg transition-colors cursor-pointer"
+                  className="flex border items-center justify-center gap-1.5 px-2 py-2 text-[13px] font-medium text-dark-muted hover:text-delete hover:bg-delete/10 rounded-lg transition-colors cursor-pointer"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
+                  <Trash className="w-4 h-4" aria-hidden="true" />
                   Xóa
                 </button>
               </div>
@@ -245,28 +252,39 @@ export default function ProjectList() {
         isOpen={modalOpen}
         onClose={() => {
           setModalOpen(false);
+          setNameError('');
           setBaseUrlError('');
         }}
         title={editingProject ? 'Cập Nhật Project' : 'Tạo Project Mới'}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-dark-text mb-1.5">Tên Project *</label>
+            <label className="block text-sm font-medium text-dark-text mb-1.5">Tên project *</label>
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              aria-required="true"
+              aria-invalid={Boolean(nameError)}
+              aria-describedby={nameError ? 'project-name-error' : undefined}
+              onChange={(e) => {
+                setFormData({ ...formData, name: e.target.value });
+                if (nameError) setNameError('');
+              }}
               placeholder="Nhập tên project..."
-              required
-              className="w-full px-4 py-2.5 bg-dark border border-dark-border rounded-lg text-dark-text text-sm placeholder-dark-muted focus:outline-none focus:border-primary transition-colors"
+              className={`w-full px-4 py-2.5 bg-dark border rounded-lg text-dark-text text-sm placeholder-dark-muted focus:outline-none transition-colors ${nameError ? 'border-delete focus:border-delete' : 'border-dark-border focus:border-primary'}`}
             />
+            {nameError && (
+              <p id="project-name-error" role="alert" className="text-xs text-delete mt-1">
+                {nameError}
+              </p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-dark-text mb-1.5">Base URL *</label>
             <input
               type="text"
               value={formData.baseUrl || ''}
-              required
+              aria-required="true"
               aria-invalid={Boolean(baseUrlError)}
               onChange={(e) => {
                 setFormData({ ...formData, baseUrl: e.target.value });
@@ -295,6 +313,7 @@ export default function ProjectList() {
               type="button"
               onClick={() => {
                 setModalOpen(false);
+                setNameError('');
                 setBaseUrlError('');
               }}
               className="px-4 py-2.5 border border-dark-border text-dark-text text-sm rounded-lg hover:bg-dark-border transition-colors cursor-pointer"

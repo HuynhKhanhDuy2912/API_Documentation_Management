@@ -52,7 +52,6 @@ export default function Login() {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="you@example.com"
-              required
               className="w-full rounded-xl border border-white/10 bg-[#0b1423] py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
             />
           </div>
@@ -68,7 +67,6 @@ export default function Login() {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               placeholder="Nhập mật khẩu"
-              required
               className="w-full rounded-xl border border-white/10 bg-[#0b1423] py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
             />
           </div>

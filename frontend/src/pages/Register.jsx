@@ -48,7 +48,7 @@ export default function Register() {
             </div>
           </div>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white">Tạo tài khoản</h1>
-          <p className="mt-2 text-sm leading-6 text-slate-400">Bắt đầu tổ chức tài liệu API theo từng project.</p>
+          <p className="mt-2 text-sm leading-6 text-slate-400">Bắt đầu tổ chức tài liệu API theo từng dự án.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -62,7 +62,6 @@ export default function Register() {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="Tên của bạn"
-              required
               className="w-full rounded-xl border border-white/10 bg-[#0b1423] py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
             />
           </div>
@@ -78,7 +77,6 @@ export default function Register() {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="you@example.com"
-              required
               className="w-full rounded-xl border border-white/10 bg-[#0b1423] py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
             />
           </div>
@@ -94,7 +92,6 @@ export default function Register() {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               placeholder="Ít nhất 6 ký tự"
-              required
               minLength={6}
               className="w-full rounded-xl border border-white/10 bg-[#0b1423] py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
             />
@@ -111,7 +108,6 @@ export default function Register() {
               value={formData.confirmPassword}
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
               placeholder="Nhập lại mật khẩu"
-              required
               minLength={6}
               className="w-full rounded-xl border border-white/10 bg-[#0b1423] py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
             />

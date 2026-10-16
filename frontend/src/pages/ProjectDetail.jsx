@@ -120,7 +120,7 @@ export default function ProjectDetail() {
     return (
       <div className="text-center py-20">
         <h3 className="text-lg font-medium text-dark-text">Không tìm thấy project</h3>
-        <Link to="/" className="text-primary text-sm mt-2 inline-block">← Quay lại</Link>
+        <Link to="/" className="text-primary text-sm mt-2 inline-block">Quay lại</Link>
       </div>
     );
   }
