@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { ArrowRight, FileText, LoaderCircle, LockKeyhole, Mail } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
@@ -24,59 +25,72 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-dark p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+    <main className="flex min-h-screen items-center justify-center bg-[#080f1b] px-4 py-8 text-dark-text">
+      <section className="w-full max-w-[440px] rounded-[28px] border border-white/[0.09] bg-[#111b2b]/90 p-6 shadow-2xl shadow-black/25 sm:p-8 xl:p-9">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-5 flex w-fit items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-600 bg-blue-600 text-blue">
+              <FileText className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div className="text-left">
+              <p className="text-base font-semibold tracking-tight text-white">API Documentation Management</p>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-dark-text">Đăng nhập</h1>
-          <p className="text-sm text-dark-muted mt-1">API Documentation Management</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em]">Workspace của bạn</p>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white">Chào mừng trở lại</h1>
+          <p className="mt-2 text-sm leading-6 text-slate-400">Đăng nhập để tiếp tục quản lý tài liệu API của bạn.</p>
         </div>
 
-        <div className="bg-dark-card border border-dark-border rounded-2xl p-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-dark-text mb-1.5">Email</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="example@email.com"
-                required
-                className="w-full px-4 py-2.5 bg-dark border border-dark-border rounded-lg text-dark-text text-sm placeholder-dark-muted focus:outline-none focus:border-primary transition-colors"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-dark-text mb-1.5">Mật khẩu</label>
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="Nhập mật khẩu..."
-                required
-                className="w-full px-4 py-2.5 bg-dark border border-dark-border rounded-lg text-dark-text text-sm placeholder-dark-muted focus:outline-none focus:border-primary transition-colors"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-hover transition-colors cursor-pointer disabled:opacity-50"
-            >
-              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-            </button>
-          </form>
-
-          <p className="text-sm text-dark-muted text-center mt-4">
-            Chưa có tài khoản?{' '}
-            <Link to="/register" className="text-primary hover:text-primary-hover transition-colors">
-              Đăng ký
-            </Link>
-          </p>
+        <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label htmlFor="login-email" className="mb-2 block text-sm font-medium text-slate-200">Email</label>
+          <div className="relative">
+            <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
+            <input
+              id="login-email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="you@example.com"
+              required
+              className="w-full rounded-xl border border-white/10 bg-[#0b1423] py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+            />
+          </div>
         </div>
-      </div>
-    </div>
+
+        <div>
+          <label htmlFor="login-password" className="mb-2 block text-sm font-medium text-slate-200">Mật khẩu</label>
+          <div className="relative">
+            <LockKeyhole className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
+            <input
+              id="login-password"
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              placeholder="Nhập mật khẩu"
+              required
+              className="w-full rounded-xl border border-white/10 bg-[#0b1423] py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="group mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white bg-blue-600 shadow-lg shadow-indigo-950/40 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+          {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+          {!loading && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />}
+        </button>
+        </form>
+
+        <div className="my-7 h-px bg-white/[0.07]" />
+        <p className="text-center text-sm text-slate-400">
+          Chưa có tài khoản?{' '}
+          <Link to="/register" className="font-semibold text-blue-600 transition hover:text-white">Đăng ký</Link>
+        </p>
+      </section>
+    </main>
   );
 }

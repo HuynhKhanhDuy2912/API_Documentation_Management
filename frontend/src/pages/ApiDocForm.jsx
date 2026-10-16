@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import {
   buildSampleRequestUrl,
   getPathParameterNames,
@@ -55,6 +56,20 @@ const TYPE_COLORS = {
 const emptyHeader = { key: '', value: '', description: '' };
 const emptyField = { name: '', type: 'String', description: '', required: false, example: '' };
 const emptyResponseField = { name: '', type: 'String', description: '', example: '' };
+
+const isValidStructuredExample = (type, example) => {
+  const value = String(example || '').trim();
+  if (!value) return true;
+
+  try {
+    const parsed = JSON.parse(value);
+    return type === 'Array'
+      ? Array.isArray(parsed)
+      : parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed);
+  } catch {
+    return false;
+  }
+};
 
 const COMMON_HEADERS = [
   { key: 'Authorization', value: 'Bearer {{token}}', description: 'Token xác thực' },
@@ -160,21 +175,107 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
 
+    const missingHeaderIndex = formData.headers.findIndex(
+      (header) => !String(header?.key || '').trim()
+    );
+    if (missingHeaderIndex !== -1) {
+      setActiveTab('request');
+      setRequestSubTab('headers');
+      toast.error(`Header thứ ${missingHeaderIndex + 1}: vui lòng nhập tên key.`);
+      return;
+    }
+
+    const missingHeaderValueIndex = formData.headers.findIndex(
+      (header) => !String(header?.value || '').trim()
+    );
+    if (missingHeaderValueIndex !== -1) {
+      setActiveTab('request');
+      setRequestSubTab('headers');
+      toast.error(`Header thứ ${missingHeaderValueIndex + 1}: vui lòng nhập value.`);
+      return;
+    }
+
+    const missingParameterIndex = formData.requestParams.findIndex(
+      (parameter) => !String(parameter?.name || '').trim()
+    );
+    if (missingParameterIndex !== -1) {
+      const location = formData.requestParams[missingParameterIndex]?.in === 'path' ? 'path' : 'query';
+      setActiveTab('request');
+      setRequestSubTab('params');
+      setParameterLocationTab(location);
+      toast.error(`Request parameter thứ ${missingParameterIndex + 1}: vui lòng nhập tên trường.`);
+      return;
+    }
+
+    const missingBodyFieldIndex = formData.requestBody.findIndex(
+      (field) => !String(field?.name || '').trim()
+    );
+    if (missingBodyFieldIndex !== -1) {
+      setActiveTab('request');
+      setRequestSubTab('body');
+      toast.error(`Request body thứ ${missingBodyFieldIndex + 1}: vui lòng nhập tên trường.`);
+      return;
+    }
+
+    const missingResponseFieldIndex = formData.response.findIndex(
+      (field) => !String(field?.name || '').trim()
+    );
+    if (missingResponseFieldIndex !== -1) {
+      setActiveTab('response');
+      toast.error(`Response thứ ${missingResponseFieldIndex + 1}: vui lòng nhập tên trường.`);
+      return;
+    }
+
+    const invalidBodyExampleIndex = formData.requestBody.findIndex(
+      (field) => ['Array', 'Object'].includes(field.type)
+        && !isValidStructuredExample(field.type, field.example)
+    );
+    if (invalidBodyExampleIndex !== -1) {
+      const field = formData.requestBody[invalidBodyExampleIndex];
+      setActiveTab('request');
+      setRequestSubTab('body');
+      toast.error(`Giá trị mẫu của "${field.name}" phải là JSON ${field.type} hợp lệ.`);
+      return;
+    }
+
+    const invalidResponseExampleIndex = formData.response.findIndex(
+      (field) => ['Array', 'Object'].includes(field.type)
+        && !isValidStructuredExample(field.type, field.example)
+    );
+    if (invalidResponseExampleIndex !== -1) {
+      const field = formData.response[invalidResponseExampleIndex];
+      setActiveTab('response');
+      toast.error(`Giá trị mẫu của "${field.name}" phải là JSON ${field.type} hợp lệ.`);
+      return;
+    }
+
     const normalizedUrl = normalizeEndpointPath(formData.url.trim());
 
-    // Clean up empty rows so backend validation does not reject
     const cleanedData = {
       ...formData,
       name: formData.name.trim(),
       url: normalizedUrl,
       description: formData.description.trim(),
-      headers: formData.headers.filter((h) => h.key && h.key.trim() !== ''),
+      headers: formData.headers.map((header) => ({
+        ...header,
+        key: String(header.key).trim(),
+        value: String(header.value).trim(),
+      })),
       requestParams: normalizeRequestParams(
-        formData.requestParams.filter((p) => p.name && p.name.trim() !== ''),
+        formData.requestParams.map((parameter) => ({
+          ...parameter,
+          name: String(parameter.name).trim(),
+        })),
         normalizedUrl
       ),
-      requestBody: formData.requestBody.filter((b) => b.name && b.name.trim() !== ''),
-      response: formData.response.filter((r) => r.name && r.name.trim() !== ''),
+      requestBody: formData.requestBody.map((field) => ({
+        ...field,
+        name: String(field.name).trim(),
+      })),
+      response: formData.response.map((field) => ({
+        ...field,
+        name: String(field.name).trim(),
+      })),
     };
 
     onSubmit(cleanedData);
@@ -367,7 +468,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
       <div className="p-6">
         {/* TAB 1: GENERAL INFO */}
         {activeTab === 'general' && (
-          <div className="space-y-6 max-w-3xl">
+          <div className="space-y-6 max-w-full">
             {/* Method selection card buttons */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-dark-muted mb-2">
@@ -570,6 +671,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
                 subtitle="Cấu trúc dữ liệu JSON gửi lên trong phần Body (áp dụng cho POST, PUT, PATCH)"
                 items={formData.requestBody}
                 hasRequired
+                supportsStructuredExample
                 onAdd={() => addItem('requestBody', emptyField)}
                 onUpdate={(idx, k, v) => updateItem('requestBody', idx, k, v)}
                 onRemove={(idx) => removeItem('requestBody', idx)}
@@ -586,6 +688,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
               subtitle="Cấu trúc các trường dữ liệu được trả về từ máy chủ sau khi xử lý thành công"
               items={formData.response}
               hasRequired={false}
+              supportsStructuredExample
               onAdd={() => addItem('response', emptyResponseField)}
               onUpdate={(idx, k, v) => updateItem('response', idx, k, v)}
               onRemove={(idx) => removeItem('response', idx)}
@@ -593,7 +696,7 @@ export default function ApiDocForm({ initialData, onSubmit, onCancel, baseUrl = 
           </div>
         )}
 
-        {/* TAB 4: SWAGGER / POSTMAN LIVE PREVIEW */}
+        {/* TAB 4: PREVIEW */}
         {activeTab === 'preview' && (
           <DocPreview
             formData={formData}
@@ -692,7 +795,7 @@ function HeadersTableEditor({ items, onAdd, onAddPreset, onUpdate, onRemove }) {
               <thead>
                 <tr className="bg-dark/80 text-dark-muted font-semibold uppercase tracking-wider border-b border-dark-border">
                   <th className="py-2.5 px-3 w-1/4">Key *</th>
-                  <th className="py-2.5 px-3 w-1/3">Value</th>
+                  <th className="py-2.5 px-3 w-1/3">Value *</th>
                   <th className="py-2.5 px-3">Mô tả</th>
                   <th className="py-2.5 px-3 w-12 text-center">Xóa</th>
                 </tr>
@@ -706,7 +809,7 @@ function HeadersTableEditor({ items, onAdd, onAddPreset, onUpdate, onRemove }) {
                         value={item.key || ''}
                         onChange={(e) => onUpdate(index, 'key', e.target.value)}
                         placeholder="VD: Authorization"
-                        className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text font-mono text-xs placeholder-dark-muted focus:outline-none focus:border-primary transition-colors"
+                        className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text font-mono text-xs placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors"
                       />
                     </td>
                     <td className="p-2">
@@ -715,7 +818,7 @@ function HeadersTableEditor({ items, onAdd, onAddPreset, onUpdate, onRemove }) {
                         value={item.value || ''}
                         onChange={(e) => onUpdate(index, 'value', e.target.value)}
                         placeholder="VD: Bearer {{token}}"
-                        className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text font-mono text-xs placeholder-dark-muted focus:outline-none focus:border-primary transition-colors"
+                        className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text font-mono text-xs placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors"
                       />
                     </td>
                     <td className="p-2">
@@ -724,7 +827,7 @@ function HeadersTableEditor({ items, onAdd, onAddPreset, onUpdate, onRemove }) {
                         value={item.description || ''}
                         onChange={(e) => onUpdate(index, 'description', e.target.value)}
                         placeholder="Mô tả ý nghĩa của header này..."
-                        className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text text-xs placeholder-dark-muted focus:outline-none focus:border-primary transition-colors"
+                        className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text text-xs placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors"
                       />
                     </td>
                     <td className="p-2 text-center">
@@ -758,6 +861,7 @@ function FieldTableEditor({
   subtitle,
   items,
   hasRequired,
+  supportsStructuredExample = false,
   requiredLocked = false,
   onAdd,
   onUpdate,
@@ -772,6 +876,11 @@ function FieldTableEditor({
             {title} ({items.length})
           </h3>
           {subtitle && <p className="text-xs text-dark-muted mt-0.5">{subtitle}</p>}
+          {supportsStructuredExample && (
+            <p className="mt-1 text-xs text-primary-light/80">
+              Với kiểu Array hoặc Object, nhập JSON hợp lệ vào Giá trị mẫu.
+            </p>
+          )}
         </div>
 
         <button
@@ -844,17 +953,17 @@ function FieldTableEditor({
                       <td className="p-2 text-center">
                         <label className="inline-flex items-center gap-1.5 cursor-pointer">
                           {requiredLocked ? (
-                            <span className="text-[11px] font-semibold text-delete">Luôn bắt buộc</span>
+                            <span className="text-[11px] font-semibold text-white">Luôn bắt buộc</span>
                           ) : (
                             <>
                               <input
                                 type="checkbox"
                                 checked={item.required || false}
                                 onChange={(e) => onUpdate(index, 'required', e.target.checked)}
-                                className="w-4 h-4 accent-primary rounded cursor-pointer"
+                                className="w-4 h-4 accent-blue rounded cursor-pointer"
                               />
                               <span
-                                className={`text-[11px] font-semibold ${item.required ? 'text-delete' : 'text-dark-muted'
+                                className={`text-[11px] font-semibold ${item.required ? 'text-white' : 'text-dark-muted'
                                   }`}
                               >
                                 {item.required ? 'Có' : 'Không'}
@@ -867,13 +976,25 @@ function FieldTableEditor({
 
                     {/* Giá trị mẫu (Example) */}
                     <td className="p-2">
-                      <input
-                        type="text"
-                        value={item.example || ''}
-                        onChange={(e) => onUpdate(index, 'example', e.target.value)}
-                        placeholder="VD: user@example.com"
-                        className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text font-mono text-xs placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors"
-                      />
+                      {supportsStructuredExample && ['Array', 'Object'].includes(item.type) ? (
+                        <textarea
+                          rows={4}
+                          value={item.example || ''}
+                          onChange={(e) => onUpdate(index, 'example', e.target.value)}
+                          placeholder={item.type === 'Array'
+                            ? '[\n  {"productId":"prod_001","quantity":2},\n  {"productId":"prod_002","quantity":1}\n]'
+                            : '{\n  "street":"123 Nguyễn Trãi",\n  "city":"TP.HCM"\n}'}
+                          className="w-full min-w-64 resize-y rounded-lg border border-dark-border/80 bg-dark px-2.5 py-1.5 font-mono text-xs text-dark-text placeholder:text-dark-muted focus:border-blue-600 focus:outline-none"
+                        />
+                      ) : (
+                        <input
+                          type="text"
+                          value={item.example || ''}
+                          onChange={(e) => onUpdate(index, 'example', e.target.value)}
+                          placeholder="VD: user@example.com"
+                          className="w-full px-2.5 py-1.5 bg-dark border border-dark-border/80 rounded-lg text-dark-text font-mono text-xs placeholder-dark-muted focus:outline-none focus:border-blue-600 transition-colors"
+                        />
+                      )}
                     </td>
 
                     {/* Mô tả */}
@@ -946,9 +1067,27 @@ function DocPreview({ formData, sampleRequestUrl }) {
       } else if (f.type === 'Boolean') {
         obj[f.name] = f.example === 'true' || f.example === '1';
       } else if (f.type === 'Array') {
-        obj[f.name] = f.example ? [f.example] : [];
+        let parsedExample;
+        try {
+          parsedExample = f.example ? JSON.parse(f.example) : [];
+        } catch {
+          parsedExample = null;
+        }
+        obj[f.name] = Array.isArray(parsedExample)
+          ? parsedExample
+          : (f.example ? [f.example] : []);
       } else if (f.type === 'Object') {
-        obj[f.name] = {};
+        let parsedExample;
+        try {
+          parsedExample = f.example ? JSON.parse(f.example) : {};
+        } catch {
+          parsedExample = null;
+        }
+        obj[f.name] = parsedExample !== null
+          && typeof parsedExample === 'object'
+          && !Array.isArray(parsedExample)
+          ? parsedExample
+          : {};
       } else {
         obj[f.name] = f.example || 'string';
       }

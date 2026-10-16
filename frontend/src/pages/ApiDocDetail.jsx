@@ -136,10 +136,26 @@ function FieldTable({ fields, showRequired }) {
                 )}
               </td>
             )}
-            <td className="py-2 font-mono text-dark-muted text-s">{f.example}</td>
+            <td className="py-2 align-top text-dark-muted text-s">
+              {['Array', 'Object'].includes(f.type) && f.example ? (
+                <pre className="max-w-xl overflow-x-auto whitespace-pre-wrap break-words rounded-lg border border-dark-border/70 bg-dark/60 p-3 font-mono text-xs text-dark-text">
+                  {formatStructuredExample(f.example)}
+                </pre>
+              ) : (
+                <span className="font-mono">{f.example}</span>
+              )}
+            </td>
           </tr>
         ))}
       </tbody>
     </table>
   );
+}
+
+function formatStructuredExample(example) {
+  try {
+    return JSON.stringify(JSON.parse(example), null, 2);
+  } catch {
+    return example;
+  }
 }

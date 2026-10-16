@@ -350,11 +350,11 @@ export default function ProjectDetail() {
                       </span>
                     </button>
 
-                    <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                    <div className="flex shrink-0 items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
                       <button
                         type="button"
                         onClick={() => openEditForm(doc)}
-                        className="rounded-lg p-2 text-dark-muted transition-colors hover:bg-dark-border hover:text-dark-text"
+                        className="rounded-lg border p-2 text-dark-muted transition-colors hover:bg-dark-border hover:text-dark-text"
                         title="Sửa"
                         aria-label={"Sửa " + doc.name}
                       >
@@ -366,7 +366,7 @@ export default function ProjectDetail() {
                           setDeletingId(doc._id);
                           setConfirmOpen(true);
                         }}
-                        className="rounded-lg p-2 text-dark-muted transition-colors hover:bg-delete/10 hover:text-delete"
+                        className="rounded-lg border p-2 text-dark-muted transition-colors hover:bg-delete/10 hover:text-delete"
                         title="Xóa"
                         aria-label={"Xóa " + doc.name}
                       >

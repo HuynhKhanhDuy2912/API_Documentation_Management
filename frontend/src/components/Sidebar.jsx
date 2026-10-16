@@ -16,7 +16,7 @@ export default function Sidebar() {
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <File className="w-5 h-5" aria-hidden="true" />
           </div>
-          <span className="text-lg font-semibold text-dark-text">API Docs</span>
+          <span className="text-lg font-semibold text-dark-text">Quản Lý Tài Liệu API</span>
         </Link>
       </div>
 
