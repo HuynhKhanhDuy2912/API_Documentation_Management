@@ -41,10 +41,10 @@ export default function Register() {
         <div className="mb-7 text-center">
           <div className="mx-auto mb-5 flex w-fit items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-600 bg-blue-600 text-blue">
-              <FileText className="h-5 w-5" aria-hidden="true" />
+              <FileText className="h-6 w-6" aria-hidden="true" />
             </div>
             <div className="text-left">
-              <p className="text-base font-semibold tracking-tight text-white">API Documentation Management</p>
+              <p className="text-base font-semibold tracking-tight text-white uppercase tracking-[0.18em]">API Documentation Management</p>
             </div>
           </div>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white">Tạo tài khoản</h1>

@@ -188,7 +188,7 @@ export default function ProjectDetail() {
                 className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-dark-muted transition-colors hover:text-blue-600"
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                Tất cả API
+                Quay lại các API
               </button>
             </div>
 
@@ -225,6 +225,16 @@ export default function ProjectDetail() {
             <Link to="/" className="transition-colors hover:text-dark-text">Projects</Link>
             <span>/</span>
             <span className="text-dark-text">{project.name}</span>
+          </div>
+
+          <div className="mb-6">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-sm font-medium text-dark-muted transition-colors hover:text-blue-600"
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              Tất cả Projects
+            </Link>
           </div>
 
           <div className="mb-6 flex items-start justify-between gap-4">
@@ -366,7 +376,7 @@ export default function ProjectDetail() {
                           setDeletingId(doc._id);
                           setConfirmOpen(true);
                         }}
-                        className="rounded-lg border p-2 text-dark-muted transition-colors hover:bg-delete/10 hover:text-delete"
+                        className="flex rounded-lg border p-2 text-dark-muted transition-colors hover:bg-delete/10 hover:text-delete"
                         title="Xóa"
                         aria-label={"Xóa " + doc.name}
                       >

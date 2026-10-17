@@ -1000,12 +1000,12 @@ function FieldTableEditor({
                     <td className="p-2">
                       {supportsStructuredExample && ['Array', 'Object'].includes(item.type) ? (
                         <textarea
-                          rows={4}
+                          rows={5}
                           value={item.example || ''}
                           onChange={(e) => onUpdate(index, 'example', e.target.value)}
                           placeholder={item.type === 'Array'
-                            ? '[\n  {"productId":"prod_001","quantity":2},\n  {"productId":"prod_002","quantity":1}\n]'
-                            : '{\n  "street":"123 Nguyễn Trãi",\n  "city":"TP.HCM"\n}'}
+                            ? 'VD:\n[\n  {"productId":"prod_001","quantity":2},\n  {"productId":"prod_002","quantity":1}\n]'
+                            : 'VD:\n{\n  "street":"123 Nguyễn Trãi",\n  "city":"TP.HCM"\n}'}
                           className="w-full min-w-64 resize-y rounded-lg border border-dark-border/80 bg-dark px-2.5 py-1.5 font-mono text-xs text-dark-text placeholder:text-dark-muted focus:border-blue-600 focus:outline-none"
                         />
                       ) : (
